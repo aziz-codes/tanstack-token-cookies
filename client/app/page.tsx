@@ -1,9 +1,10 @@
 "use client";
 import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
+import { useRouter } from "next/navigation";
 import TimeAgo from "react-timeago";
 import { getRequest, postRequest } from "@/services";
-
+import {logout} from '@/actions/remove-cookie';
 interface Post {
   _id: string;
   title: string;
@@ -20,7 +21,7 @@ const HomePage = () => {
   const [title, setTitle] = useState("");
   const [desc, setDesc] = useState("");
   const [posting, setPosting] = useState(false);
-
+const router = useRouter();
   const queryClient = useQueryClient();
 
   const { data, error, isLoading } = useQuery<ApiResponse, Error>({
@@ -51,7 +52,19 @@ const HomePage = () => {
 
   const posts = data?.result;
 
+   const handleClick = async() =>{
+       await logout();
+       router.push("/login")
+
+   }
+
   return (
+   <>
+   <div className="h-14 w-full border-b mb-4 flex justify-end items-center px-4">
+    <button 
+    onClick={handleClick}
+    className="px-3 py-1.5 text-white rounded-md bg-sky-500 border-none outline-none hover:ring-1">Logout</button>
+   </div>
     <div className="flex w-full p-6 gap-2">
       <div className="flex-1 flex flex-col gap-4">
         <h4>Create a new post!</h4>
@@ -92,6 +105,7 @@ const HomePage = () => {
         ))}
       </div>
     </div>
+   </>
   );
 };
 
