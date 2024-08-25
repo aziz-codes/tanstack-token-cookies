@@ -1,13 +1,12 @@
 "use client";
 
-import { create } from "@/actions/save-cookie";
 import axios from "axios";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 const Login = () => {
   const router = useRouter();
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
+  const [email, setEmail] = useState("aziz@google.com");
+  const [password, setPassword] = useState("admin");
 
   const handleLogin = async () => {
     const payload = {
@@ -17,20 +16,13 @@ const Login = () => {
     try {
       const res = await axios.post(
         "http://localhost:5000/users/login",
-        payload
+        payload,
+        { withCredentials: true }
       );
-      const { refreshToken, accessToken } = res.data;
 
-      const tds = `${refreshToken}AZ-:24${accessToken}`;
-      const data = {
-        name: "ds",
-        value: tds,
-        httpOnly: true,
-        path: "/",
-        secure: true,
-      };
-      await create(data);
-      router.push("/");
+      if (res.status === 200) {
+        router.push("/");
+      }
     } catch (err) {
       console.log(err);
     }

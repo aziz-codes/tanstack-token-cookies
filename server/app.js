@@ -7,11 +7,14 @@ import UserRoutes from "./routes/User.js";
 import PostRoutes from "./routes/Posts.js";
 import VerifyToken from "./middlewares/token-auth.js";
 import refreshTokenHandler from "./controllers/Auth.js";
+// Test routes
 
+import TestRoutes from './routes/Test.js';
 const app = express();
 app.use(
   cors({
-    origin: "*",
+    origin: 'http://localhost:3000',
+    credentials: true,
   })
 );
 
@@ -19,6 +22,7 @@ app.use(express.json());
 app.use("/users", UserRoutes);
 app.use("/posts", VerifyToken, PostRoutes);
 app.post("/token/refresh", refreshTokenHandler);
+app.use('/test',TestRoutes);
 app.listen(process.env.PORT, () => {
   console.log(`server running on port ${process.env.PORT}`);
 });

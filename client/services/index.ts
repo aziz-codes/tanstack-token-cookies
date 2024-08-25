@@ -4,6 +4,7 @@ import { create } from "@/actions/save-cookie";
 import { headers } from "next/headers";
 
 const BASEURL = "http://localhost:5000";
+const splitter = "cb24"
 
 // this function will  be only used to obtain a new access token..
 const refreshAccessToken = async (): Promise<string> => {
@@ -13,7 +14,7 @@ const refreshAccessToken = async (): Promise<string> => {
   });
   const newAccessToken = refreshRes.data.accessToken;
 
-  const tds = `${refreshToken}AZ-:24${newAccessToken}`;
+  const tds = `${refreshToken}${splitter}${newAccessToken}`;
   const data = {
     name: "ds",
     value: tds,
@@ -23,20 +24,22 @@ const refreshAccessToken = async (): Promise<string> => {
   };
   await create(data);
 
+  
+
   return newAccessToken;
 };
 
 const getAccessToken = async () => {
   const data = await getCookie();
 
-  const accessToken = data?.split("AZ-:24")[1];
+  const accessToken = data?.split(splitter)[0];
 
   return accessToken;
 };
 
 const getRefreshToken = async () => {
   const data = await getCookie();
-  const refreshToken = data?.split("AZ-:24")[0];
+  const refreshToken = data?.split(splitter)[1];
   return refreshToken;
 };
 // post request function.
