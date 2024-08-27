@@ -3,12 +3,14 @@
 import axios from "axios";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import LoadingButton from "@/components/loading";
 const Login = () => {
   const router = useRouter();
   const [email, setEmail] = useState("aziz@google.com");
   const [password, setPassword] = useState("admin");
-
-  const handleLogin = async () => {
+   const [loading, setLoading] = useState(false);
+  const handleLogin = async () => { 
+    setLoading(true);
     const payload = {
       email,
       password,
@@ -21,9 +23,11 @@ const Login = () => {
       );
 
       if (res.status === 200) {
+        setLoading(false);
         router.push("/");
       }
     } catch (err) {
+      setLoading(false);
       console.log(err);
     }
   };
@@ -44,12 +48,14 @@ const Login = () => {
           value={password}
           onChange={(e) => setPassword(e.target.value)}
         />
-        <button
-          className="px-3 py-1.5 rounded-md hover:ring-1 bg-sky-600 text-white"
+       <button
+          className="px-3 py-1.5 rounded-md hover:ring-1 bg-sky-600 text-white disabled:bg-gray-400 disabled:hover:ring-0"
           onClick={handleLogin}
+          disabled={loading}
         >
-          Sign in
+          {loading ? <LoadingButton />: "Sign in"}
         </button>
+        
       </div>
     </div>
   );
