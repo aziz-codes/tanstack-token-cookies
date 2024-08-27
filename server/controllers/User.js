@@ -34,31 +34,40 @@ export const saveUser = async (req, res) => {
     res.send({ message: err.message, status: 400 });
   }
 };
+
 export const handleLogin = async (req, res) => {
   const { email, password } = req.body;
 
   try {
     // Check if user exists
-    const user = await User.findOne({ email,password });
+    const user = await User.findOne({ email, password });
     if (!user) {
       return res.status(401).json({ message: "Invalid email or password", status: 401 });
     }
 
-    // Assuming password comparison is done using bcrypt or another method
-    
     // Generate tokens
     const JWT_SECRET = process.env.JWT_SECRET;
-    const authToken = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: accessTokenExp });
-    const refreshAuthToken = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: refreshTokenExp });
-    const combinedToken = `${authToken}${process.env.SPLITTER}${refreshAuthToken}`
-    // Set cookies
-    res.cookie('ds', combinedToken, {
+    const accessToken = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '15m' }); // Access token expires in 15 minutes
+    const refreshToken = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' }); // Refresh token expires in 7 days
+
+    // Combine tokens using a special separator
+    const combinedToken = `${accessToken}${process.env.SPLITTER || '---'}${refreshToken}`;
+
+    // Set the access token in a short-lived cookie
+    res.cookie('at', combinedToken.split(process.env.SPLITTER || '---')[0], {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'Strict',
-      maxAge: 2 * 60 * 1000, // 2 minutes in milliseconds
+      maxAge: 15 * 60 * 1000, // 15 minutes
     });
- 
+
+    // Set the refresh token in a longer-lived cookie
+    res.cookie('rt', combinedToken.split(process.env.SPLITTER || '---')[1], {
+      httpOnly: true,
+      secure: process.env.NODE_ENV === 'production',
+      sameSite: 'Strict',
+      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+    });
 
     // Send response
     res.status(200).json({
@@ -69,3 +78,39 @@ export const handleLogin = async (req, res) => {
     res.status(500).json({ message: err.message, status: 500 });
   }
 };
+
+// export const handleLogin = async (req, res) => {
+//   const { email, password } = req.body;
+
+//   try {
+//     // Check if user exists
+//     const user = await User.findOne({ email,password });
+//     if (!user) {
+//       return res.status(401).json({ message: "Invalid email or password", status: 401 });
+//     }
+
+//     // Assuming password comparison is done using bcrypt or another method
+    
+//     // Generate tokens
+//     const JWT_SECRET = process.env.JWT_SECRET;
+//     const authToken = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: accessTokenExp });
+//     const refreshAuthToken = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: refreshTokenExp });
+//     const combinedToken = `${authToken}${process.env.SPLITTER}${refreshAuthToken}`
+//     // Set cookies
+//     res.cookie('ds', combinedToken, {
+//       httpOnly: true,
+//       secure: process.env.NODE_ENV === 'production',
+//       sameSite: 'Strict',
+//       maxAge: 2 * 60 * 1000, // 2 minutes in milliseconds
+//     });
+ 
+
+//     // Send response
+//     res.status(200).json({
+//       message: "Login successful",
+//       status: 200,
+//     });
+//   } catch (err) {
+//     res.status(500).json({ message: err.message, status: 500 });
+//   }
+// };
