@@ -3,7 +3,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export async function middleware(req: NextRequest) {
   const cookie = cookies();
-  const token = cookie.get("ds");
+  const token = cookie.get("cb-session");
 
   // If the user has a token and is trying to access the login page, redirect to the home page
   if (token && req.nextUrl.pathname === "/login") {
