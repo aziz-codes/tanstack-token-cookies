@@ -17,7 +17,7 @@ const verifyToken = (req, res, next) => {
       next();
     });
   } else {
-    return res.status(401).json({ message: "No signature attached" });
+    return res.status(401).json({ message: "No signature attached",status: 401, details: "Unauthorized" });
   }
 };
 

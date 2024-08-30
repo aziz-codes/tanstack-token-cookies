@@ -3,7 +3,9 @@ import {cookies} from 'next/headers';
 
 export  async function logout(){
     const cookie = cookies();
-    const ds = cookie.get('ds');
+    const ds = cookie.get('cb-session');
     if(!ds) return;
-    return cookie.delete('ds');
+     cookie.delete('cb-session');
+     cookie.delete('rt');
+     cookie.delete('at');
 }
