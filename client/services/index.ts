@@ -1,8 +1,7 @@
 import axios, { AxiosRequestConfig } from "axios";
 import { getCookie } from "@/actions/sent-cookie";
 import { create } from "@/actions/save-cookie";
-import { headers } from "next/headers";
-
+ 
 const BASEURL = "http://localhost:5000";
 const splitter = "cb24"
 
