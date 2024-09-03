@@ -76,7 +76,7 @@ export const handleLogin = async (req, res) => {
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'Strict',
       path: '/',
-      maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 30 days
     });
     
     // Send response
