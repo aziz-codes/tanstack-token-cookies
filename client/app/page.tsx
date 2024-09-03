@@ -100,7 +100,7 @@ const router = useRouter();
           >
             <h4>{post.title}</h4>
             <p className="line-clamp-3 break-all">{post.description}</p>
-            <TimeAgo date={post.createdAt} />
+            <TimeAgo date={post.createdAt} locale="en-US" timeStyle="round-minute"/>
           </div>
         ))}
       </div>
