@@ -6,6 +6,7 @@ export  async function logout(){
     const ds = cookie.get('cb-session');
     if(!ds) return;
      cookie.delete('cb-session');
-     cookie.delete('rt');
-     cookie.delete('at');
+     cookie.delete('rft');
+     cookie.delete('act');
+     cookie.delete('ds');
 }
