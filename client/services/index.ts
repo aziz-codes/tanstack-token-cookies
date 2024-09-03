@@ -1,7 +1,11 @@
 import axios, { AxiosRequestConfig } from "axios";
-import { getCookie } from "@/actions/sent-cookie";
-import { create } from "@/actions/save-cookie";
  
+ 
+import { create } from "@/actions/save-cookie";
+ import { getAccessToken,getRefreshToken} from "./utils";
+
+
+
 const BASEURL = "http://localhost:5000";
 const splitter = "cb24"
 
@@ -13,14 +17,15 @@ const refreshAccessToken = async (): Promise<string> => {
   });
   const newAccessToken = refreshRes.data.accessToken;
 
-  const tds = `${refreshToken}${splitter}${newAccessToken}`;
+  const tds = `${refreshToken}${process.env.COMBINED_TOKEN_SPLITTER}${newAccessToken}`;
   const data = {
-    name: "ds",
+    name: "cb-session",
     value: tds,
     httpOnly: true,
     path: "/",
     secure: true,
   };
+
   await create(data);
 
   
@@ -28,19 +33,8 @@ const refreshAccessToken = async (): Promise<string> => {
   return newAccessToken;
 };
 
-const getAccessToken = async () => {
-  const data = await getCookie();
+ 
 
-  const accessToken = data?.split(splitter)[0];
-
-  return accessToken;
-};
-
-const getRefreshToken = async () => {
-  const data = await getCookie();
-  const refreshToken = data?.split(splitter)[1];
-  return refreshToken;
-};
 // post request function.
 export const postRequest = async <T>(
   endPoint: string,
