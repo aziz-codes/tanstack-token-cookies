@@ -51,31 +51,34 @@ export const handleLogin = async (req, res) => {
     const refreshToken = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' }); // Refresh token expires in 7 days
 
     // Combine tokens using a special separator
-    const combinedToken = `${accessToken}${process.env.SPLITTER || '---'}${refreshToken}`;
-
-    // Set the access token in a short-lived cookie
-    res.cookie('at', combinedToken.split(process.env.SPLITTER || '---')[0], {
+    const combinedToken = `je2n291n10${accessToken}${process.env.COMBINED_TOKEN_SPLITTER || '---'}${refreshToken}1mkwfnkfwe01824`;
+    const refreshTokenSecure = `${process.env.SPLITTER}${refreshToken}`
+    const accessTokenSecure = `${accessToken}${process.env.SPLITTER}`
+    //  refresh token.
+    res.cookie('uid', refreshTokenSecure, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
-      sameSite: 'Strict',
-      maxAge: 15 * 60 * 1000, // 15 minutes
+      sameSite: "Strict",
+      path: '/',
+      maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
-
-    // Set the refresh token in a longer-lived cookie
-    res.cookie('rt', combinedToken.split(process.env.SPLITTER || '---')[1], {
+    
+    res.cookie('sid', accessTokenSecure, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'Strict',
-      maxAge: 7 * 24 * 60 * 60 * 1000, // 7 days
+      path: '/',
+      maxAge: 5 * 60 * 1000 // 5 minutes
     });
-
-    res.cookie('cb-session', combinedToken.split("----").reverse(), {
+    
+    res.cookie('cb-session', combinedToken, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'Strict',
-      path: '/', // Ensure the cookie is available site-wide
+      path: '/',
       maxAge: 30 * 24 * 60 * 60 * 1000 // 30 days
     });
+    
     // Send response
     res.status(200).json({
       message: "Login successful",
