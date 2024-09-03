@@ -55,7 +55,7 @@ export const handleLogin = async (req, res) => {
     const refreshTokenSecure = `${process.env.SPLITTER}${refreshToken}`
     const accessTokenSecure = `${accessToken}${process.env.SPLITTER}`
     //  refresh token.
-    res.cookie('uid', refreshTokenSecure, {
+    res.cookie('rft', refreshTokenSecure, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: "Strict",
@@ -63,7 +63,7 @@ export const handleLogin = async (req, res) => {
       maxAge: 7 * 24 * 60 * 60 * 1000 // 7 days
     });
     
-    res.cookie('sid', accessTokenSecure, {
+    res.cookie('act', accessTokenSecure, {
       httpOnly: true,
       secure: process.env.NODE_ENV === 'production',
       sameSite: 'Strict',
