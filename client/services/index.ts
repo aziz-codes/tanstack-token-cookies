@@ -2,13 +2,9 @@ import axios, { AxiosRequestConfig } from "axios";
  
  
 import { create } from "@/actions/save-cookie";
- import { getAccessToken,getRefreshToken} from "./utils";
-
-
+import { getAccessToken,getRefreshToken} from "./utils";
 
 const BASEURL = "http://localhost:5000";
-const splitter = "cb24"
-
 // this function will  be only used to obtain a new access token..
 const refreshAccessToken = async (): Promise<string> => {
   const refreshToken = await getRefreshToken();
@@ -27,13 +23,8 @@ const refreshAccessToken = async (): Promise<string> => {
   };
 
   await create(data);
-
-  
-
   return newAccessToken;
 };
-
- 
 
 // post request function.
 export const postRequest = async <T>(
@@ -52,11 +43,8 @@ export const postRequest = async <T>(
     return response.data;
   } catch (error) {
     if (axios.isAxiosError(error) && error.response?.status === 403) {
-      // Token expired, refresh it
       try {
         const newAccessToken = await refreshAccessToken();
-
-        // Retry the post request with new token
         const newConfig = {
           headers: {
             Authorization: `Bearer ${newAccessToken}`,
@@ -80,6 +68,8 @@ export const postRequest = async <T>(
   }
 };
 
+
+// get request.
 export const getRequest = async (endPoint: string): Promise<any> => {
   const accessToken = await getAccessToken();
   const config: AxiosRequestConfig = {
