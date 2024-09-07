@@ -51,7 +51,7 @@ export const handleLogin = async (req, res) => {
     const refreshToken = jwt.sign({ userId: user._id }, JWT_SECRET, { expiresIn: '7d' }); // Refresh token expires in 7 days
 
     // Combine tokens using a special separator
-    const combinedToken = `je2n291n10${accessToken}${process.env.COMBINED_TOKEN_SPLITTER || '---'}${refreshToken}1mkwfnkfwe01824`;
+    const combinedToken = `${accessToken}${process.env.COMBINED_TOKEN_SPLITTER || '---'}${refreshToken}`;
     const refreshTokenSecure = `${process.env.SPLITTER}${refreshToken}`
     const accessTokenSecure = `${accessToken}${process.env.SPLITTER}`
     //  refresh token.
@@ -83,6 +83,7 @@ export const handleLogin = async (req, res) => {
     res.status(200).json({
       message: "Login successful",
       status: 200,
+      user: user._id
     });
   } catch (err) {
     res.status(500).json({ message: err.message, status: 500 });

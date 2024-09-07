@@ -23,6 +23,8 @@ const Login = () => {
       );
 
       if (res.status === 200) {
+        const {data} = res;
+        localStorage.setItem('user',data.user);
         setLoading(false);
         router.push("/");
       }
