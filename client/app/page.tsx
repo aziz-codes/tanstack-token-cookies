@@ -182,10 +182,13 @@ const HomePage = () => {
           {posts?.map((post) => (
             <div key={post._id} className="flex flex-col gap-3 shadow-md rounded-md p-3 border">
               <div className="flex flex-col space-y-1">
-                <h4>{post.title}</h4>
+                <h4 className="font-semibold">{post.title}</h4>
                 <p className="line-clamp-3 break-all">{post.description}</p>
-                <TimeAgo date={post.createdAt} locale="en-US" timeStyle="round-minute" />
-                <label>Post id is: {post._id}</label>
+                <div className="text-gray-400 text-sm">
+
+                <TimeAgo date={post.createdAt} locale="en-US" timeStyle="round-minute"  />
+                </div>
+                
               </div>
               <div className="flex items-center gap-2">
                 <HeartIcon

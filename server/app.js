@@ -10,6 +10,7 @@ import refreshTokenHandler from "./controllers/Auth.js";
 // Test routes
 
 import TestRoutes from './routes/Test.js';
+ 
 const app = express();
 app.use(
   cors({
@@ -20,7 +21,7 @@ app.use(
 
 app.use(express.json());
 app.use("/users", UserRoutes);
-app.use("/posts", PostRoutes);
+app.use("/posts",VerifyToken, PostRoutes);
 app.post("/token/refresh", refreshTokenHandler);
 app.use('/test',TestRoutes);
 app.listen(process.env.PORT, () => {
