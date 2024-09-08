@@ -6,6 +6,7 @@ import TimeAgo from "react-timeago";
 import { getRequest, postRequest, putRequest } from "@/services";
 import { logout } from "@/actions/remove-cookie";
 import { HeartIcon } from "@heroicons/react/16/solid";
+import Avatar from "@/components/user-avatar";
 
 interface Post {
   _id: string;
@@ -108,7 +109,7 @@ const HomePage = () => {
             post._id === postId
               ? {
                   ...post,
-                  likes: post.likes.filter((like) => like !== user) // Optimistically remove user from likes
+                  likes: post.likes.filter((like) => like !== user), // Optimistically remove user from likes
                 }
               : post
           ),
@@ -127,7 +128,9 @@ const HomePage = () => {
 
   // Handle like button click
   const handleLike = (postId: string) => {
-    if (posts?.find((post) => post._id === postId)?.likes.includes(user as string)) {
+    if (
+      posts?.find((post) => post._id === postId)?.likes.includes(user as string)
+    ) {
       dislikeMutation.mutate(postId);
     } else {
       likeMutation.mutate(postId);
@@ -180,15 +183,27 @@ const HomePage = () => {
           {isLoading && "Loading..."}
           {error && "Error occurred, fetching posts."}
           {posts?.map((post) => (
-            <div key={post._id} className="flex flex-col gap-3 shadow-md rounded-md p-3 border">
+            <div
+              key={post._id}
+              className="flex flex-col gap-3 shadow-md rounded-md p-3 border"
+            >
+              <div className="flex items-center space-x-3">
+                <Avatar name="Aziz" />
+
+                <div className="text-gray-400 flex flex-col text-xs">
+                  <label className="text-black font-semibold text-sm">
+                    Aziz
+                  </label>
+                  <TimeAgo
+                    date={post.createdAt}
+                    locale="en-US"
+                    timeStyle="twitter"
+                  />
+                </div>
+              </div>
               <div className="flex flex-col space-y-1">
                 <h4 className="font-semibold">{post.title}</h4>
                 <p className="line-clamp-3 break-all">{post.description}</p>
-                <div className="text-gray-400 text-sm">
-
-                <TimeAgo date={post.createdAt} locale="en-US" timeStyle="round-minute"  />
-                </div>
-                
               </div>
               <div className="flex items-center gap-2">
                 <HeartIcon
