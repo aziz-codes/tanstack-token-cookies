@@ -53,7 +53,7 @@ export const handleLogin = async (req, res) => {
     // Combine tokens using a special separator
     const combinedToken = `${accessToken}${process.env.COMBINED_TOKEN_SPLITTER || '---'}${refreshToken}`;
     const refreshTokenSecure = `${process.env.SPLITTER}${refreshToken}`
-    const accessTokenSecure = `${accessToken}${process.env.SPLITTER}`
+    const accessTokenSecure = `${accessToken}`
     //  refresh token.
     res.cookie('rft', refreshTokenSecure, {
       httpOnly: true,
