@@ -20,7 +20,7 @@ app.use(
 
 app.use(express.json());
 app.use("/users", UserRoutes);
-app.use("/posts", VerifyToken, PostRoutes);
+app.use("/posts", PostRoutes);
 app.post("/token/refresh", refreshTokenHandler);
 app.use('/test',TestRoutes);
 app.listen(process.env.PORT, () => {
