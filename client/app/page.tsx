@@ -3,7 +3,7 @@ import { useQuery, useMutation, useQueryClient } from "@tanstack/react-query";
 import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import TimeAgo from "react-timeago";
-import { getRequest, postRequest } from "@/services";
+import { getRequest, postRequest, putRequest } from "@/services";
 import { logout } from "@/actions/remove-cookie";
 import { HeartIcon } from "@heroicons/react/16/solid";
 
@@ -26,6 +26,7 @@ const HomePage = () => {
   const [posting, setPosting] = useState(false);
   const router = useRouter();
   const queryClient = useQueryClient();
+  const user = localStorage.getItem("user");
 
   // Fetching posts
   const { data, error, isLoading } = useQuery<ApiResponse, Error>({
@@ -57,14 +58,11 @@ const HomePage = () => {
   // Mutation to like a post
   const likeMutation = useMutation({
     mutationFn: async (postId: string) => {
-      // Assume that userId is available from your auth context or similar
-      const payload = { userId: "66db5acd8255429c1b57234f" }; // Replace with the actual user ID
-      await postRequest(`/posts/${postId}/like`, payload);
+      const payload = { user }; // Replace with the actual user ID
+      await putRequest(`/posts/${postId}/like`, payload);
     },
     onMutate: async (postId: string) => {
-      // Optimistic update starts
-      await queryClient.cancelQueries({queryKey:["posts"]});
-
+      await queryClient.cancelQueries({ queryKey: ["posts"] });
       const previousPosts = queryClient.getQueryData<ApiResponse>(["posts"]);
 
       queryClient.setQueryData<ApiResponse>(["posts"], (oldData) => {
@@ -75,7 +73,7 @@ const HomePage = () => {
             post._id === postId
               ? {
                   ...post,
-                  likes: [...post.likes, "66db5acd8255429c1b57234f"], // Optimistically add user to likes
+                  likes: [...post.likes, user as string], // Optimistically add user to likes
                 }
               : post
           ),
@@ -85,19 +83,55 @@ const HomePage = () => {
       return { previousPosts };
     },
     onError: (error, postId, context) => {
-      // Rollback the optimistic update on error
       queryClient.setQueryData(["posts"], context?.previousPosts);
     },
     onSettled: () => {
-      // Refetch the posts to sync with the server
-      queryClient.invalidateQueries({queryKey:["posts"]});
-      
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
+    },
+  });
+
+  // Mutation to dislike a post
+  const dislikeMutation = useMutation({
+    mutationFn: async (postId: string) => {
+      const payload = { userId: user }; // Replace with the actual user ID
+      await putRequest(`/posts/${postId}/like`, payload);
+    },
+    onMutate: async (postId: string) => {
+      await queryClient.cancelQueries({ queryKey: ["posts"] });
+      const previousPosts = queryClient.getQueryData<ApiResponse>(["posts"]);
+
+      queryClient.setQueryData<ApiResponse>(["posts"], (oldData) => {
+        if (!oldData) return oldData;
+        return {
+          ...oldData,
+          result: oldData.result.map((post) =>
+            post._id === postId
+              ? {
+                  ...post,
+                  likes: post.likes.filter((like) => like !== user) // Optimistically remove user from likes
+                }
+              : post
+          ),
+        };
+      });
+
+      return { previousPosts };
+    },
+    onError: (error, postId, context) => {
+      queryClient.setQueryData(["posts"], context?.previousPosts);
+    },
+    onSettled: () => {
+      queryClient.invalidateQueries({ queryKey: ["posts"] });
     },
   });
 
   // Handle like button click
   const handleLike = (postId: string) => {
-    likeMutation.mutate(postId);
+    if (posts?.find((post) => post._id === postId)?.likes.includes(user as string)) {
+      dislikeMutation.mutate(postId);
+    } else {
+      likeMutation.mutate(postId);
+    }
   };
 
   const handleClick = async () => {
@@ -119,7 +153,7 @@ const HomePage = () => {
       </div>
       <div className="flex w-full p-6 gap-2">
         <div className="flex-1 flex flex-col gap-4">
-          <h4>Create a new post!</h4>
+          <h4>Create a new post!</h4> with user {user}
           <input
             type="text"
             className="outline-none px-2 py-2 rounded-md border"
@@ -151,11 +185,12 @@ const HomePage = () => {
                 <h4>{post.title}</h4>
                 <p className="line-clamp-3 break-all">{post.description}</p>
                 <TimeAgo date={post.createdAt} locale="en-US" timeStyle="round-minute" />
+                <label>Post id is: {post._id}</label>
               </div>
               <div className="flex items-center gap-2">
                 <HeartIcon
                   className="h-10 w-9 cursor-pointer"
-                  fill={post.likes.includes("66db5acd8255429c1b57234f") ? "red" : "gray"}
+                  fill={post.likes.includes(user as string) ? "red" : "gray"}
                   onClick={() => handleLike(post._id)}
                 />
                 {post.likes.length} Likes
