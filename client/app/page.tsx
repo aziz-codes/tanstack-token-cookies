@@ -93,7 +93,7 @@ const HomePage = () => {
   // Mutation to dislike a post
   const dislikeMutation = useMutation({
     mutationFn: async (postId: string) => {
-      const payload = { userId: user }; // Replace with the actual user ID
+      const payload = { user }; // Replace with the actual user ID
       await putRequest(`/posts/${postId}/like`, payload);
     },
     onMutate: async (postId: string) => {

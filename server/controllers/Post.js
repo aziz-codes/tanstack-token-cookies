@@ -1,3 +1,4 @@
+import mongoose from "mongoose";
 import Post from "../schema/Post.Schema.js";
 
 export const getPosts = async (_, res) => {
@@ -38,28 +39,31 @@ export const handleReactPost = async (req, res) => {
   try {
     const { id } = req.params;
     const { user } = req.body;  
+    const userObjectId = new mongoose.Types.ObjectId(user);
     console.log(user)
     const post = await Post.findById(id);  
     if (!post) {
       return res.status(404).json({ message: "Post not found", id });
     }
 
-    const hasLiked = post.likes.includes(user);  
+    const hasLiked = post.likes.some((like) => like.equals(userObjectId));
 
     if (hasLiked) {
-     const updatedLikes =  post.likes.filter((like) => like !== user);
+      const updatedLikes = post.likes.filter((like) => !like.equals(userObjectId)); 
        post.likes = updatedLikes;
+   
        
     } else {
  
-      post.likes.push(user);
+      post.likes.push(userObjectId);
+     
     }
     await post.save(); 
 
     // Send the correct response after saving
     res.status(200).json({
       message: hasLiked ? "Like removed" : "Like added",
-      post,
+      post
     });
   } catch (error) {
     console.error(error);
