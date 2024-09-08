@@ -59,7 +59,7 @@ export const postRequest = async <T>(
         );
         return retryResponse.data;
       } catch (err) {
-        console.log("Your session might have expired");
+        console.log("Your session might have expired",error);
         throw err;
       }
     } else {
@@ -107,6 +107,52 @@ export const getRequest = async (endPoint: string): Promise<any> => {
         throw err;
       }
     } else {
+      throw error;
+    }
+  }
+};
+// put request
+export const putRequest = async <T>(
+  endPoint: string,
+  payload: T
+): Promise<any> => {
+  const accessToken = await getAccessToken();
+  const config: AxiosRequestConfig = {
+    headers: {
+      Authorization: `Bearer ${accessToken}`,
+      "Content-Type": "application/json",
+    },
+  };
+
+  try {
+    // Making PUT request to the provided endpoint with the payload
+    const response = await axios.put(`${BASEURL}${endPoint}`, payload, config);
+    return response.data;
+  } catch (error) {
+    if (axios.isAxiosError(error) && error.response?.status === 403) {
+      try {
+        // If the access token is expired, refresh the token
+        const newAccessToken = await refreshAccessToken();
+        const newConfig = {
+          headers: {
+            Authorization: `Bearer ${newAccessToken}`,
+            "Content-Type": "application/json",
+          },
+        };
+
+        // Retry the PUT request with the new access token
+        const retryResponse = await axios.put(
+          `${BASEURL}${endPoint}`,
+          payload,
+          newConfig
+        );
+        return retryResponse.data;
+      } catch (err) {
+        console.log("Your session might have expired.",error);
+        throw err;
+      }
+    } else {
+      // Handle other errors
       throw error;
     }
   }
