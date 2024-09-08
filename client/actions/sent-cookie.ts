@@ -3,6 +3,6 @@
 import { cookies } from "next/headers";
 
 export async function getCookie() {
-  return cookies().get("sid")?.value;
+  return cookies().get("cb-session")?.value;
   //   return auths;
 }
